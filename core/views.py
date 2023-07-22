@@ -13,29 +13,33 @@ class IndexView(TemplateView):
     template_name = "index.html"
     success_url = reverse_lazy("index")
 
-    # def extract_messages_from_response(self, response):
-    #     messages = []
-    #     if "Messages" in response:
-    #         messages = [message["Body"] for message in response["Messages"]]
-    #         print("Message: ", messages)
-    #         for message in response["Messages"]:
-    #             receipt_handle = message["ReceiptHandle"]
-    #             self.delete_message(receipt_handle)
-    #     return messages
+    def extract_messages_from_response(self, response):
+        messages = []
+        if "Messages" in response:
+            messages = [message["Body"] for message in response["Messages"]]
+            print("Message: ", messages)
+            for message in response["Messages"]:
+                receipt_handle = message["ReceiptHandle"]
+                self.delete_message(receipt_handle)
+        return messages
 
-    # def delete_message(self, receipt_handle):
-    #     sqs.delete_message(QueueUrl=URL_SQS, ReceiptHandle=receipt_handle)
-    #     print("Message deleted")
+    def delete_message(self, receipt_handle):
+        sqs.delete_message(QueueUrl=URL_SQS, ReceiptHandle=receipt_handle)
+        print("Message deleted")
 
-    # def retrieve_sqs_messages(self):
-    #     response = sqs.receive_message(
-    #         QueueUrl=URL_SQS, MaxNumberOfMessages=10)
-    #     messages = self.extract_messages_from_response(response)
-    #     if messages:
-    #         return messages
+    def retrieve_sqs_messages(self):
+        response = sqs.receive_message(
+            QueueUrl=URL_SQS, MaxNumberOfMessages=10)
+        messages = self.extract_messages_from_response(response)
+        if messages:
+            return messages
 
     def get_context_data(self, **kwargs):
         context = {}
-        # context["messages"] = self.retrieve_sqs_messages()
+        context["messages"] = self.retrieve_sqs_messages()
         context["dogs"] = Dog.objects.all()
         return context
+
+
+class CreateDogView(TemplateView):
+    template_name = "createDog.html"

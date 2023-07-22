@@ -11,13 +11,14 @@ from Project_s3.settings import (
 )
 import boto3
 import uuid
+import re
 
 """classe responsavel pelo index, e retornar o contexto"""
 sqs = boto3.client(
     "sqs",
     aws_access_key_id=AWS_ACCESS_KEY_ID,
     aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    region_name="sa-east-1",
+    region_name=AWS_S3_REGION_NAME,
 )
 
 
@@ -37,8 +38,9 @@ class DogViewSet(viewsets.ModelViewSet):
         response = super().create(request, *args, **kwargs)
         if response.status_code == 201:
             filme_criado = response.data
-            titulo_do_filme = filme_criado["titulo"]
-            message = f"O filme {titulo_do_filme} foi criado com sucesso :)"
-            self.send_message(message, titulo_do_filme)
+            nome_do_dog = filme_criado["nome"]
+            nome_do_dog = re.sub("\s", "_", nome_do_dog)
+            message = f"O cachorro {nome_do_dog} foi adicionado"
+            self.send_message(message, nome_do_dog)
             return redirect(reverse("index"))
         return response
